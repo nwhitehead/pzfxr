@@ -22,6 +22,8 @@ Based on the origina SFXR by Thomas Petersson
 #include <string>
 #include <vector>
 
+#include "argagg/argagg.hpp"
+
 #include "Generator.h"
 #include "Patch.h"
 #include "RNG.h"
@@ -617,25 +619,46 @@ int main(int argc, char *argv[])
 {
     unit_tests();
 
-    std::string msg = R"(
+    argagg::parser argparser {{
+        { "help", {"-h", "--help"},
+          "shows this help message", 0},
+        { "verbose", {"-v", "--verbose"},
+          "show verbose output", 0},
+        { "seed", {"-s", "--seed"},
+          "set rng seed", 1},
+        { "output", {"-o", "--output"},
+          "write WAV output", 1},
+    }};
+    argagg::parser_results args;
+    try
+    {
+        args = argparser.parse(argc, argv);
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << e.what() << std::endl;
+        return EXIT_FAILURE;
+    }
+    if (args["help"])
+    {
+        std::cerr << "\nPZSFXR : PuzzleScript Sound Effectzor\n\n"
+                  << argparser
+                  << "\nEXAMPLE\n\n"
+                  << "    pzfxr --seed=27824302 --output=test.wav\n";
+    }
 
-BFXR C++ command line generator by Nathan Whitehead
-
-Usage:
-    bfxrc NUMBER OUTFILE
-
-Example:
-    bfxrc 27824302 test.wav
-
-)";
-    std::cout << msg << std::endl;
-    assert(argc > 2);
-    std::string seed{argv[1]};
-    std::string filename{argv[2]};
-    int seedi;
-    std::stringstream ss;
-    ss << seed;
-    ss >> seedi;
+    if (!args["seed"])
+    {
+        std::cerr << "Seed is required to generate sound" << std::endl;
+        return EXIT_FAILURE;
+    }
+    if (!args["output"])
+    {
+        std::cerr << "Output file is required to generate sound" << std::endl;
+        return EXIT_FAILURE;
+    }
+    int seedi = args["seed"];
+    std::string filename = args["output"];
     int gseed = seedi / 100;
     int gtype = seedi % 100;
 
@@ -674,12 +697,20 @@ Example:
             p = bird(rng);
             break;
         default:
-            assert(0 && "Unknown sound type");
+            std::cerr << "Unknown sound type, seed must end in 00-09" << std::endl;
+            return EXIT_FAILURE;
     }
-    std::cout << p.str() << std::endl;
+    if (args["verbose"])
+    {
+        std::cout << "Seed is " << seedi << std::endl;
+        std::cout << p.str() << std::endl;
+    }
     Generator g{p};
     auto samps = g.generate();
-    std::cout << "Generated " << samps.size() << " samples" << std::endl;
+    if (args["verbose"])
+    {
+        std::cout << "Generated " << samps.size() << " samples" << std::endl;
+    }
     saveWAV(samps, filename);
-    return 0;
+    return EXIT_SUCCESS;
 }
