@@ -44,5 +44,5 @@ file `js/sfxr.js` by increpare. The PuzzleScript
 sound generation functions are based on [BFXR](https://www.bfxr.net/)
 by increpare, which is based on the original
 [SFXR](http://www.drpetter.se/project_sfxr.html) by Thomas Petersson.
-PZFXR uses [argagg](https://github.com/vietjtnguyen/argagg) by Viet the Nguyen
+PZFXR uses [argagg](https://github.com/vietjtnguyen/argagg) by Viet The Nguyen
 for command line parsing.
