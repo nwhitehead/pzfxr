@@ -19,6 +19,11 @@ if (USE_SANITIZER)
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -fsanitize=address -fno-omit-frame-pointer")
 endif()
 
+## static
+option(LINK_STATIC "Link statically" OFF)
+if (LINK_STATIC)
+    set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
+endif()
 
 ### EXTERNAL PROJECTS
 

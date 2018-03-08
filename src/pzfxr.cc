@@ -587,30 +587,35 @@ void saveWAV(std::vector<float> samples, std::string filename)
     fclose(foutput);
 }
 
+bool close(double actual, double expected)
+{
+    return std::abs(actual - expected) / expected < 1e-6;
+}
+
 void unit_tests()
 {
     {
         RNG rng(0);
-        assert(rng.uniform() == 0.5331977905620839);
-        assert(rng.uniform() == 0.1531524589417522);
+        assert(close(rng.uniform(), 0.5331977905620839));
+        assert(close(rng.uniform(), 0.1531524589417522));
         for (int i = 0; i < 1024; i++)
         {
             rng.uniform();
         }
-        assert(rng.uniform() == 0.8312710111387246);
+        assert(close(rng.uniform(), 0.8312710111387246));
     }
     {
         RNG rng(632749);
         Patch p = pushSound(rng);
-        assert(p.env_decay == 0.08117953194502579);
-        assert(p.freq_ramp == 0.20779508427941235);
+        assert(close(p.env_decay, 0.08117953194502579));
+        assert(close(p.freq_ramp, 0.20779508427941235));
         assert(p.wave_type == Wave::SAWTOOTH);
     }
     {
         RNG rng(806717);
         Patch p = pickupCoin(rng);
-        assert(p.env_decay == 0.40795044598372276);
-        assert(p.base_freq == 0.598671793704112);
+        assert(close(p.env_decay, 0.40795044598372276));
+        assert(close(p.base_freq, 0.598671793704112));
         assert(p.wave_type == Wave::SQUARE);
     }
 }
